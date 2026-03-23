@@ -1,4 +1,5 @@
 package com.restaurant.ordersystem.repository;
-
-public class OrderItemRepository {
+import com.restaurant.ordersystem.entity.OrderItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
 }
