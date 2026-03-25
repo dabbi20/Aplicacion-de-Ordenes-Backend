@@ -20,6 +20,13 @@ this.productService = productService;
     public  Product createProduct(@RequestBody Product product){
         return productService.saveProduct(product);
     }
+
+    //OBTENER PRODUCTOS
+
+    @GetMapping
+    public List<Product> getAllProducts(){
+        return productService.getAllProducts();
+    }
     //OBTENER POR ID
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id){
