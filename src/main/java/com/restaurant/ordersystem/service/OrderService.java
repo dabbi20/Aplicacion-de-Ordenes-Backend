@@ -9,11 +9,12 @@ import com.restaurant.ordersystem.entity.OrderItem;
 import com.restaurant.ordersystem.entity.Product;
 import com.restaurant.ordersystem.entity.User;
 import com.restaurant.ordersystem.enums.OrderStatus;
+import com.restaurant.ordersystem.enums.PaymentType;
+import com.restaurant.ordersystem.observer.OrderEventManager;
 import com.restaurant.ordersystem.repository.OrderItemRepository;
 import com.restaurant.ordersystem.repository.OrderRepository;
 import com.restaurant.ordersystem.repository.ProductRepository;
 import com.restaurant.ordersystem.repository.UserRepository;
-import com.restaurant.ordersystem.enums.PaymentType;
 import com.restaurant.ordersystem.strategy.CardPaymentStrategy;
 import com.restaurant.ordersystem.strategy.CashPaymentStrategy;
 import com.restaurant.ordersystem.strategy.PaymentStrategy;
@@ -34,6 +35,7 @@ public class OrderService {
     private final CashPaymentStrategy cashPaymentStrategy;
     private final CardPaymentStrategy cardPaymentStrategy;
     private final TransferPaymentStrategy transferPaymentStrategy;
+    private final OrderEventManager orderEventManager;
 
     public OrderService(OrderRepository orderRepository,
                         OrderItemRepository orderItemRepository,
@@ -41,7 +43,8 @@ public class OrderService {
                         UserRepository userRepository,
                         CashPaymentStrategy cashPaymentStrategy,
                         CardPaymentStrategy cardPaymentStrategy,
-                        TransferPaymentStrategy transferPaymentStrategy) {
+                        TransferPaymentStrategy transferPaymentStrategy,
+                        OrderEventManager orderEventManager) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
@@ -49,7 +52,9 @@ public class OrderService {
         this.cashPaymentStrategy = cashPaymentStrategy;
         this.cardPaymentStrategy = cardPaymentStrategy;
         this.transferPaymentStrategy = transferPaymentStrategy;
+        this.orderEventManager = orderEventManager;
     }
+
     private PaymentStrategy getPaymentStrategy(PaymentType paymentType) {
         return switch (paymentType) {
             case CASH -> cashPaymentStrategy;
@@ -57,6 +62,7 @@ public class OrderService {
             case TRANSFER -> transferPaymentStrategy;
         };
     }
+
     public OrderResponse createOrder(CreateOrderRequest request) {
 
         User user = userRepository.findById(request.getUserId())
@@ -114,6 +120,8 @@ public class OrderService {
 
         Order finalOrder = orderRepository.save(savedOrder);
 
+        orderEventManager.notifyObservers(finalOrder);
+
         OrderResponse response = new OrderResponse();
         response.setOrderId(finalOrder.getId());
         response.setUserId(user.getId());
@@ -129,4 +137,3 @@ public class OrderService {
         return response;
     }
 }
-
