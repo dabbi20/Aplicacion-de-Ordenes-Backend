@@ -1,25 +1,39 @@
 package com.restaurant.ordersystem.dto;
+
 import com.restaurant.ordersystem.enums.PaymentType;
 import java.util.List;
 
 public class CreateOrderRequest {
+
     private Long userId;
     private PaymentType paymentType;
-    private List<OrderItemRequest>items;
+    private List<OrderItemRequest> items;
 
-    public CreateOrderRequest(){
+    public CreateOrderRequest() {
+    }
+
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
-    public PaymentType getPaymentType(){
+
+    public PaymentType getPaymentType() {
         return paymentType;
     }
-    public void setPaymentType(PaymentType paymentType){
+
+    public void setPaymentType(PaymentType paymentType) {
         this.paymentType = paymentType;
     }
-    public List<OrderItemRequest>getItems(){
+
+    public List<OrderItemRequest> getItems() {
         return items;
     }
-    public void setItems(List<OrderItemRequest>items){
+
+    public void setItems(List<OrderItemRequest> items) {
         this.items = items;
     }
 }
