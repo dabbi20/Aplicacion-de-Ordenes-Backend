@@ -19,6 +19,7 @@ import com.restaurant.ordersystem.strategy.CardPaymentStrategy;
 import com.restaurant.ordersystem.strategy.CashPaymentStrategy;
 import com.restaurant.ordersystem.strategy.PaymentStrategy;
 import com.restaurant.ordersystem.strategy.TransferPaymentStrategy;
+import com.restaurant.ordersystem.builder.OrderBuilder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -68,11 +69,12 @@ public class OrderService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Order order = new Order();
-        order.setUser(user);
-        order.setStatus(OrderStatus.CREATED);
-        order.setPaymentType(request.getPaymentType());
-        order.setCreatedAt(LocalDateTime.now());
+        Order order = new OrderBuilder()
+                .setUser(user)
+                .setStatus(OrderStatus.CREATED)
+                .setPaymentType(request.getPaymentType())
+                .setCreatedAt(LocalDateTime.now())
+                .build();
 
         double subtotal = 0.0;
 
