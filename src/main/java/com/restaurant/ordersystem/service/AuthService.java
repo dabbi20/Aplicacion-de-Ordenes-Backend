@@ -7,14 +7,17 @@ import com.restaurant.ordersystem.entity.User;
 import com.restaurant.ordersystem.enums.Role;
 import com.restaurant.ordersystem.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import com.restaurant.ordersystem.security.JwtService;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     // REGISTRO
@@ -44,8 +47,11 @@ public class AuthService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         AuthResponse response = new AuthResponse();
         response.setMessage("Login exitoso");
+        response.setToken(token);
 
         return response;
     }

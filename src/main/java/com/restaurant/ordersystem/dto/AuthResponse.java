@@ -3,6 +3,7 @@ package com.restaurant.ordersystem.dto;
 public class AuthResponse {
 
     private String message;
+    private String token;
 
     public AuthResponse() {
     }
@@ -13,5 +14,13 @@ public class AuthResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
