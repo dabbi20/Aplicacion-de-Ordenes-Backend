@@ -3,39 +3,37 @@ package com.restaurant.ordersystem.entity;
 import com.restaurant.ordersystem.enums.Role;
 import jakarta.persistence.*;
 
-@Entity // Indica que esta clase es una entidad, es decir, una tabla en la base de datos
-@Table(name = "users") // Define el nombre de la tabla en la BD
-public class User {// Clase pública que representa la tabla users
+@Entity
+@Table(name = "users")
+public class User {
 
-    @Id// Define la clave primaria (ID)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)// Indica que el ID se genera automáticamente en la base de datos (autoincremental en PostgreSQL)
-    private Long id;// Atributo privado, solo se accede mediante getters y setters, representa el identificador
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String name;// Atributo privado de tipo String que representa el nombre del usuario
+    private String name;
 
-    private String email;// Atributo privado de tipo String que representa el correo del usuario
+    @Column(unique = true, nullable = false)
+    private String email;
+    private String password;
 
-    private String password;// Atributo privado de tipo String que representa la contraseña del usuario
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @Enumerated(EnumType.STRING)// Indica que el enum se guardará como texto (ej: "ADMIN") y no como número
-    private Role role;// Atributo que usa el enum Role (ADMIN o CLIENT)
-
-    // constructor vacío (JPA lo necesita)
-    public User() {// Constructor vacío requerido por JPA para poder crear objetos automáticamente
+    public User() {
     }
 
-    // getters y setters (luego podemos usar Lombok)
-    public Long getId() { // Método público para obtener el ID
+    public Long getId() {
         return id;
     }
 
     public String getName() {
-        return name; // Método público para obtener el nombre
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    } // Método público para modificar el nombre
+    }
 
     public String getEmail() {
         return email;

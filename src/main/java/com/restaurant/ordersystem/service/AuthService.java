@@ -23,10 +23,14 @@ public class AuthService {
     // REGISTRO
     public AuthResponse register(RegisterRequest request) {
 
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // luego encriptamos
+        user.setPassword(request.getPassword());
         user.setRole(Role.CLIENT);
 
         userRepository.save(user);
@@ -36,7 +40,6 @@ public class AuthService {
 
         return response;
     }
-
     // LOGIN
     public AuthResponse login(LoginRequest request) {
 
