@@ -1,5 +1,6 @@
 package com.restaurant.ordersystem.service;
 
+import com.restaurant.ordersystem.builder.OrderBuilder;
 import com.restaurant.ordersystem.dto.CreateOrderRequest;
 import com.restaurant.ordersystem.dto.OrderItemRequest;
 import com.restaurant.ordersystem.dto.OrderItemResponse;
@@ -19,7 +20,6 @@ import com.restaurant.ordersystem.strategy.CardPaymentStrategy;
 import com.restaurant.ordersystem.strategy.CashPaymentStrategy;
 import com.restaurant.ordersystem.strategy.PaymentStrategy;
 import com.restaurant.ordersystem.strategy.TransferPaymentStrategy;
-import com.restaurant.ordersystem.builder.OrderBuilder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -65,7 +65,6 @@ public class OrderService {
     }
 
     public OrderResponse createOrder(CreateOrderRequest request) {
-
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -124,18 +123,81 @@ public class OrderService {
 
         orderEventManager.notifyObservers(finalOrder);
 
-        OrderResponse response = new OrderResponse();
-        response.setOrderId(finalOrder.getId());
-        response.setUserId(user.getId());
-        response.setUserName(user.getName());
-        response.setStatus(finalOrder.getStatus());
-        response.setSubtotal(subtotal);
-        response.setTax(tax);
-        response.setTotal(total);
-        response.setPaymentType(finalOrder.getPaymentType());
-        response.setCreatedAt(finalOrder.getCreatedAt());
-        response.setItems(itemResponses);
+        return mapToOrderResponse(finalOrder, itemResponses);
+    }
 
+    public List<OrderResponse> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        List<OrderResponse> responses = new ArrayList<>();
+
+        for (Order order : orders) {
+            responses.add(mapToOrderResponse(order, getItemResponsesByOrderId(order.getId())));
+        }
+
+        return responses;
+    }
+
+    public List<OrderResponse> getOrdersByUsername(String username) {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        List<Order> orders = orderRepository.findAll()
+                .stream()
+                .filter(order -> order.getUser() != null &&
+                        order.getUser().getId().equals(user.getId()))
+                .toList();
+
+        List<OrderResponse> responses = new ArrayList<>();
+
+        for (Order order : orders) {
+            responses.add(mapToOrderResponse(order, getItemResponsesByOrderId(order.getId())));
+        }
+
+        return responses;
+    }
+    public OrderResponse updateOrderStatus(Long id, OrderStatus status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+        order.setStatus(status);
+        Order updatedOrder = orderRepository.save(order);
+
+        return mapToOrderResponse(updatedOrder, getItemResponsesByOrderId(updatedOrder.getId()));
+    }
+
+    private List<OrderItemResponse> getItemResponsesByOrderId(Long orderId) {
+        List<OrderItem> orderItems = orderItemRepository.findAll()
+                .stream()
+                .filter(item -> item.getOrder().getId().equals(orderId))
+                .toList();
+
+        List<OrderItemResponse> itemResponses = new ArrayList<>();
+
+        for (OrderItem item : orderItems) {
+            OrderItemResponse itemResponse = new OrderItemResponse();
+            itemResponse.setProductId(item.getProduct().getId());
+            itemResponse.setProductName(item.getProduct().getName());
+            itemResponse.setQuantity(item.getQuantity());
+            itemResponse.setUnitPrice(item.getUnitPrice());
+            itemResponse.setSubtotal(item.getSubtotal());
+            itemResponses.add(itemResponse);
+        }
+
+        return itemResponses;
+    }
+
+    private OrderResponse mapToOrderResponse(Order order, List<OrderItemResponse> itemResponses) {
+        OrderResponse response = new OrderResponse();
+        response.setOrderId(order.getId());
+        response.setUserId(order.getUser().getId());
+        response.setUserName(order.getUser().getName());
+        response.setStatus(order.getStatus());
+        response.setSubtotal(order.getSubtotal());
+        response.setTax(order.getTax());
+        response.setTotal(order.getTotal());
+        response.setPaymentType(order.getPaymentType());
+        response.setCreatedAt(order.getCreatedAt());
+        response.setItems(itemResponses);
         return response;
     }
 }
