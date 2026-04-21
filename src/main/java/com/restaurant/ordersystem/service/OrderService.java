@@ -64,8 +64,8 @@ public class OrderService {
         };
     }
 
-    public OrderResponse createOrder(CreateOrderRequest request) {
-        User user = userRepository.findById(request.getUserId())
+    public OrderResponse createOrder(CreateOrderRequest request, String username) {
+        User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Order order = new OrderBuilder()
@@ -155,6 +155,7 @@ public class OrderService {
 
         return responses;
     }
+
     public OrderResponse updateOrderStatus(Long id, OrderStatus status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));

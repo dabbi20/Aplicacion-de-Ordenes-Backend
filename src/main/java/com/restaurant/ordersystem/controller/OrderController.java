@@ -22,8 +22,12 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
-        return ResponseEntity.ok(orderService.createOrder(request));
+    public ResponseEntity<OrderResponse> createOrder(
+            @RequestBody CreateOrderRequest request,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(orderService.createOrder(request, username));
     }
 
     @GetMapping
@@ -42,15 +46,16 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByUsername(username));
     }
 
-
-
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> body
     ) {
+        System.out.println("ENTRO A UPDATE STATUS");
+
         String statusValue = body.get("status");
         OrderStatus status = OrderStatus.valueOf(statusValue);
+
         return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
     }
 }

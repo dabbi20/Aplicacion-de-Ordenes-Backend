@@ -5,20 +5,10 @@ import java.util.List;
 
 public class CreateOrderRequest {
 
-    private Long userId;
     private PaymentType paymentType;
     private List<OrderItemRequest> items;
 
     public CreateOrderRequest() {
-    }
-
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public PaymentType getPaymentType() {
@@ -36,5 +26,4 @@ public class CreateOrderRequest {
     public void setItems(List<OrderItemRequest> items) {
         this.items = items;
     }
-
 }

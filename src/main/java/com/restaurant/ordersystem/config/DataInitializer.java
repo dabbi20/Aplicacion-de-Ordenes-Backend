@@ -16,19 +16,25 @@ public class DataInitializer {
         return args -> {
             String adminEmail = "superadmin@test.com";
 
-            if (userRepository.findByEmail(adminEmail).isEmpty()) {
-                User admin = new User();
+            User admin = userRepository.findByEmail(adminEmail)
+                    .orElse(null);
+
+            if (admin == null) {
+                // CREAR ADMIN
+                admin = new User();
                 admin.setName("Administrador");
                 admin.setEmail(adminEmail);
-                admin.setPassword(passwordEncoder.encode("1234"));
                 admin.setRole(Role.ADMIN);
-
-                userRepository.save(admin);
 
                 System.out.println("ADMIN creado correctamente: " + adminEmail);
             } else {
-                System.out.println("El admin ya existe: " + adminEmail);
+                System.out.println("ADMIN ya existe, actualizando contraseña...");
             }
+
+            //  SIEMPRE ACTUALIZA LA CONTRASEÑA
+            admin.setPassword(passwordEncoder.encode("123456"));
+
+            userRepository.save(admin);
         };
     }
 }
